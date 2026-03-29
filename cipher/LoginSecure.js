@@ -1,4 +1,4 @@
-
+const fs = require('fs');
 const sql = require('msnodesqlv8');
 let express = require("express")
 const dbConfig = require("../db/dbConnection")
@@ -7,7 +7,8 @@ const axios = require("axios");
 const router = express.Router();
 
 const key = 'CTS_MOBILE';
-
+const dbConfigdStr = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+const serverIp = dbConfigdStr.serverip;
 
 function isBase64(str) {
     const base64Regex = /^[A-Za-z0-9+/=]+$/;
@@ -53,7 +54,7 @@ const getBranchDetails = async (bankId, branchId) => {
     }
     else {
         const response = await axios.post(
-            "http://192.168.100.183:5002/cts/getBranchById",
+            `http://${serverIp}:5002/cts/getBranchById`,
             { bankId, branchId }
         );
 

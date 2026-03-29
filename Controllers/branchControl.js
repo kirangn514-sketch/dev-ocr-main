@@ -1,6 +1,12 @@
 const sql = require('mssql');
+const axios = require('axios');
+const FormData = require('form-data');
 const { dbConfig } = require("../db/dbConnection")
 const logger = require("../logging/logger")
+const fs = require('fs');
+
+const dbConfigdStr = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+const serverIp_2 = dbConfigdStr.serverIp_2;
 
 
 exports.getAllBranch = async (req, res) => {
@@ -44,6 +50,62 @@ exports.getAllBranch = async (req, res) => {
         console.log(error)
     }
 
+}
+
+// Proxy to local OCR service that reads cheque content
+// Accepts multipart/form-data with field name `file` and forwards to
+// http://127.0.0.1:8000/read-cheque
+exports.readCheque = async (req, res) => {
+    const READ_CHEQUE_TIMEOUT_MS = parseInt(process.env.READ_CHEQUE_TIMEOUT_MS, 10) || 120000;
+
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                res_code: 0,
+                status: "error",
+                message: "file is required in multipart/form-data"
+            });
+        }
+
+        const formData = new FormData();
+        formData.append('file', req.file.buffer, {
+            filename: req.file.originalname || 'upload.jpg',
+            contentType: req.file.mimetype || 'image/jpeg'
+        });
+
+        const upstreamResponse = await axios.post(
+            `http://${serverIp_2}:8000/read-cheque`,
+            formData,
+            {
+                headers: {
+                    ...formData.getHeaders(),
+                    accept: 'application/json'
+                },
+                maxBodyLength: Infinity,
+                maxContentLength: Infinity,
+                timeout: READ_CHEQUE_TIMEOUT_MS
+            }
+        );
+
+        return res.status(200).json({
+            res_code: 1,
+            status: "success",
+            message: "Cheque read successfully",
+            data: upstreamResponse.data
+        });
+    } catch (error) {
+        logger.error(error);
+        const status = error.response?.status || 500;
+        console.error(error)
+        return res.status(status).json({
+            res_code: 0,
+            status: "error",
+            message: "Failed to read cheque",
+            upstreamStatus: status,
+            upstreamResponse: error.response?.data || error.message,
+            code: error.code === 'ECONNABORTED' ? 'upstream_timeout' : error.code
+        });
+    }
 }
 
 // Fetch branch details (and optional scanners) by bankId + branchId

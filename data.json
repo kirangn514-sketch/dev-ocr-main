@@ -4,7 +4,7 @@
   "serverip" :"192.168.100.202",
    "mssqlnode": "Driver={ODBC Driver 17 for SQL Server};Server=ACSEDP202;Database=CTS_New;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
   "ctsweb": "Driver={ODBC Driver 17 for SQL Server};Server=ACSEDP183;Database=RBLCTSWEB;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
-  "serverip_2" :"192.168.100.202",
+  "serverIp_2" :"127.0.0.1",
 
 
 

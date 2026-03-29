@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\KiranG\\CTS_OCR\\OCR_Updated\\logs\\.d19aca3c03948b43e16e77f383dda7cc5fdec9cd-audit.json",
+    "files": [
+        {
+            "date": 1771051340446,
+            "name": "D:\\KiranG\\CTS_OCR\\OCR_Updated\\logs\\error-2026-02-14.log",
+            "hash": "6317341946cda4e8153e64738d11cb61fb69f5b9e6e4a7772db2c8c94e990a69"
+        },
+        {
+            "date": 1771147383914,
+            "name": "D:\\KiranG\\CTS_OCR\\OCR_Updated\\logs\\error-2026-02-15.log",
+            "hash": "37ee3d0fbf3849e6f17f5134055582aae6f8d382fd86ceaa5caeabd8de574548"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -1,0 +1,17 @@
+{
+    "mssqlnode_1": "Driver={ODBC Driver 17 for SQL Server};Server=RBLAPP;Database=RBLCTSWEB;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
+     "mssqlnode": "Driver={ODBC Driver 17 for SQL Server};Server=ACSEDP202;Database=RBLCTSWEB;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
+      "mssql": {
+    "user": "sa",
+    "password": "Sql@2022",
+    "server": "ACSEDP202",
+    "database": "CTS_New",
+    "port": 1433,
+    "options": {
+      "encrypt": false,
+      "trustServerCertificate": true,
+      "connectionTimeout": 300000
+      
+      
+    }}
+}

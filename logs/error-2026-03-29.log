@@ -1,0 +1,9 @@
+2026-03-29 15:00:54 [ERROR]: connect ECONNREFUSED 192.168.100.183:5002
+2026-03-29 15:04:41 [ERROR]: Invalid object name 'MPresentingBank'.
+2026-03-29 15:04:42 [ERROR]: Request failed with status code 500
+2026-03-29 20:02:14 [ERROR]: (intermediate value) is not iterable
+2026-03-29 20:02:14 [ERROR]: Request failed with status code 500
+2026-03-29 20:02:35 [ERROR]: (intermediate value) is not iterable
+2026-03-29 20:02:35 [ERROR]: Request failed with status code 500
+2026-03-29 20:04:41 [ERROR]: Connection is closed.
+2026-03-29 20:04:41 [ERROR]: Error during login user: Connection is closed.

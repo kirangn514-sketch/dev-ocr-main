@@ -1,0 +1,34 @@
+{
+  "mssql": {
+    "user": "sa",
+    "password": "Sql@2022",
+    "server": "ACSEDP202",
+    "database": "RBLCTSWIN",
+    "port": 1433,
+    "options": {
+      "encrypt": false,
+      "trustServerCertificate": true,
+      "connectionTimeout": 300000
+      
+      
+    }
+  },
+  "mssqlnode": "Driver={ODBC Driver 17 for SQL Server};Server=ACSEDP202;Database=RBLCTSWIN;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
+  "tedious": {
+    "server": "ACSEDP202",
+    "authentication": {
+      "type": "default",
+      "options": {
+        "userName": "sa", 
+        "password": "Sql@2022"
+      }
+    },
+    "options": {
+      "database": "RBLCTSWIN",
+      "encrypt": true,
+      "rowCollectionOnRequestCompletion": true
+    }
+  },
+   "serverip" :"192.168.100.202"
+  
+}

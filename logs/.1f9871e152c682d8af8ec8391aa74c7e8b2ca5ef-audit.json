@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "E:\\kiran\\CTS_OCR\\OCR_Updated\\logs\\.1f9871e152c682d8af8ec8391aa74c7e8b2ca5ef-audit.json",
+    "files": [
+        {
+            "date": 1771777915774,
+            "name": "E:\\kiran\\CTS_OCR\\OCR_Updated\\logs\\info-2026-02-22.log",
+            "hash": "9abf52c42d637229dc5d00c075f20f497ac7983a8a30b509c193ed17f4dbfcef"
+        }
+    ],
+    "hashType": "sha256"
+}

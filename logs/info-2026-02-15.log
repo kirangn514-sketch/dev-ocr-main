@@ -1,0 +1,6 @@
+2026-02-15 14:54:38 [ERROR]: "presentingTime" is not allowed
+2026-02-15 16:33:58 [ERROR]: "gridId" is not allowed
+2026-02-15 16:36:55 [ERROR]: "gridId" must be a string
+2026-02-15 16:40:18 [ERROR]: Cannot set headers after they are sent to the client
+2026-02-15 16:48:45 [INFO]: User kirang logged in successfuly
+2026-02-15 16:51:41 [ERROR]: connect ECONNREFUSED 192.168.100.183:5003

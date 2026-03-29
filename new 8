@@ -1,0 +1,49 @@
+
+
+mecker master <-----------
+
+btnCorrectionSave_Click  <------- Update button event call 	
+
+ int retval = controller.Update_Maker(model); <------- then call this method for save data 
+ 
+ SP_UpdateMakerDetails <-------- save int to data this sp
+=======================================================================================================
+ 
+ 
+ Checker Entery  <---------
+ 
+  public int Update_Checker(OutwardBatchScanDetailsModel model) <------- this method call for save data  checker entery
+  
+          public int Update_Checker(OutwardBatchScanDetailsModel model) <------ Then call this method for data save
+ 
+  SP_UpdateCheckerDetails <-------- save int to data this sp
+
+ 
+=====================================================================================================================
+ 
+ Verification <---------------
+ 
+         protected void btnVerificationSave_Click(object sender, EventArgs e)
+
+         public int Update_Verification(OutwardBatchScanDetailsModel model) <------  call method for data save
+		 
+		 SP_UpdateOutwardbatchVerification  <-------- save int to data this sp
+		 
+		 
+		 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

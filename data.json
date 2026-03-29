@@ -1,0 +1,27 @@
+{
+  "mssqlnode_1": "Driver={ODBC Driver 17 for SQL Server};Server=RBLAPP;Database=RBLCTSMOBWIN;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
+  "ctsweb_1": "Driver={ODBC Driver 17 for SQL Server};Server=RBLCTSMOBWIN;Database=RBLCTSWEB;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
+  "serverip" :"192.168.100.202",
+   "mssqlnode": "Driver={ODBC Driver 17 for SQL Server};Server=ACSEDP202;Database=CTS_New;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
+  "ctsweb": "Driver={ODBC Driver 17 for SQL Server};Server=ACSEDP183;Database=RBLCTSWEB;Uid=sa;Pwd=Sql@2022;TrustServerCertificate=Yes;Connection Timeout=30",
+  "serverip_2" :"192.168.100.202",
+
+
+
+   "mssql": {
+    "user": "sa",
+    "password": "Sql@2022",
+    "server": "ACSEDP202",
+    "database": "CTS_New",
+    "port": 1433,
+    "options": {
+      "encrypt": false,
+      "trustServerCertificate": true,
+      "connectionTimeout": 300000
+      
+      
+    }}
+}
+
+
+

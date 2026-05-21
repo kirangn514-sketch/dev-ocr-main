@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTS OCR API Documentation</title>
+    <link rel="stylesheet" href="/docs/swagger-ui/swagger-ui.css">
+    <link rel="stylesheet" href="/docs/swagger-custom.css">
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="/docs/swagger-ui/swagger-ui-bundle.js"></script>
+    <script src="/docs/swagger-ui/swagger-ui-standalone-preset.js"></script>
+    <script src="/docs/swagger-init-custom.js"></script>
+    </body>
+</html>
+            <div class="sidebar-header">
+                <div class="sidebar-title">CTS OCR API</div>
+                <div class="sidebar-subtitle">API v1.0.0</div>
+            </div>
+
+            <div class="api-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Total Endpoints:</span>
+                    <span class="stat-value">27</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Active:</span>
+                    <span class="stat-value" style="color: #49cc90;">25</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Deprecated:</span>
+                    <span class="stat-value" style="color: #fca130;">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Protected:</span>
+                    <span class="stat-value" style="color: #667eea;">18</span>
+                </div>
+            </div>
+
+            <!-- Authentication Category -->
+            <div class="endpoint-category">
+                <div class="category-title">
+                    <span class="category-icon">🔐</span>
+                    Authentication <span class="endpoint-count">5</span>
+                </div>
+                <div class="endpoint-item" title="Get OTP for employee">
+                    <span class="method-badge get">GET</span> /otp <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="User login">
+                    <span class="method-badge post">POST</span> loginUser <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="User logout">
+                    <span class="method-badge post">POST</span> logoutUser <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Encrypt password">
+                    <span class="method-badge post">POST</span> encrypt <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Decrypt password">
+                    <span class="method-badge post">POST</span> decrypt <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Batch Management Category -->
+            <div class="endpoint-category">
+                <div class="category-title">
+                    <span class="category-icon">📦</span>
+                    Batch Management <span class="endpoint-count">4</span>
+                </div>
+                <div class="endpoint-item" title="Get clearing codes">
+                    <span class="method-badge get">GET</span> getClearingCodes <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Create batch (OLD)">
+                    <span class="method-badge post">POST</span> createBatch <span class="status-badge deprecated">OLD</span>
+                </div>
+                <div class="endpoint-item" title="Create batch (MSSQL)">
+                    <span class="method-badge post">POST</span> create_newBatch <span class="status-badge active">NEW</span>
+                </div>
+                <div class="endpoint-item" title="Get scan details by batch ID">
+                    <span class="method-badge post">POST</span> getAllScanDetailsWithBatchid <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Branch Management Category -->
+            <div class="endpoint-category">
+                <div class="category-title">
+                    <span class="category-icon">🏦</span>
+                    Branch Management <span class="endpoint-count">3</span>
+                </div>
+                <div class="endpoint-item" title="Get all branches">
+                    <span class="method-badge get">GET</span> getAllBranch <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Get branch by ID">
+                    <span class="method-badge post">POST</span> getBranchById <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Read cheque image">
+                    <span class="method-badge post">POST</span> read-cheque <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- OCR Processing Category -->
+            <div class="endpoint-category">
+                <div class="category-title">
+                    <span class="category-icon">👁️</span>
+                    OCR Processing <span class="endpoint-count">2</span>
+                </div>
+                <div class="endpoint-item" title="OCR front side">
+                    <span class="method-badge post">POST</span> ocrApi <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="OCR back side">
+                    <span class="method-badge post">POST</span> ocrBack <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Reporting Category -->
+            <div class="endpoint-category">
+                <div class="category-title">
+                    <span class="category-icon">📊</span>
+                    Reporting <span class="endpoint-count">5</span>
+                </div>
+                <div class="endpoint-item" title="Generate report">
+                    <span class="method-badge post">POST</span> getReport <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Detailed report">
+                    <span class="method-badge post">POST</span> getDetailReport <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Rejection report">
+                    <span class="method-badge post">POST</span> getRejectionReport <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="NPCI status report">
+                    <span class="method-badge post">POST</span> getNPCIStatusReport <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Rejection report v2">
+                    <span class="method-badge post">POST</span> getRejectionReport_v2 <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Upload Management Category -->
+            <div class="endpoint-category">
+                <div class="category-title">
+                    <span class="category-icon">📤</span>
+                    Upload Management <span class="endpoint-count">3</span>
+                </div>
+                <div class="endpoint-item" title="Final batch upload">
+                    <span class="method-badge post">POST</span> finalUpload <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Get all scan details">
+                    <span class="method-badge get">GET</span> getAllScanDetails <span class="status-badge active">ACTIVE</span>
+                </div>
+                <div class="endpoint-item" title="Get pending uploads">
+                    <span class="method-badge post">POST</span> getFinalUploadPndingList <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Image Processing Category -->
+            <div class="endpoint-category">
+                <div class="category-title">
+                    <span class="category-icon">🖼️</span>
+                    Image Processing <span class="endpoint-count">1</span>
+                </div>
+                <div class="endpoint-item" title="Upload cheque images">
+                    <span class="method-badge post">POST</span> uploadImage <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Legend Section -->
+            <div class="legend">
+                <div class="legend-title">Status Legend</div>
+                <div class="legend-item">
+                    <span class="legend-badge" style="background: #49cc90; color: white;">ACTIVE</span>
+                    <span>Production ready</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-badge" style="background: #fca130; color: white;">DEPRECATED</span>
+                    <span>Use newer version</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-badge" style="background: #61affe; color: white;">GET</span>
+                    <span>Retrieve data</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-badge" style="background: #49cc90; color: white;">POST</span>
+                    <span>Create/Process data</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">CTS OCR API Documentation</div>
+                <div class="topbar-info">Cheque Truncation System - Optical Character Recognition Mobile & Web API</div>
+            </div>
+            <div id="swagger-ui" class="swagger-ui-wrapper"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js"></script>
+    <script>
+        const ui = SwaggerUIBundle({
+            url: '/docs/swagger.json',
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIBundle.SwaggerUIStandalonePreset
+            ],
+            plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+            defaultModelsExpandDepth: 1,
+            defaultModelExpandDepth: 1,
+            tryItOutEnabled: true,
+            requestInterceptor: (request) => {
+                request.headers['Content-Type'] = 'application/json';
+                return request;
+            },
+            onComplete: function() {
+                console.log("Swagger UI loaded successfully");
+                console.log("API Server: http://localhost:5002");
+            }
+        });
+
+        window.ui = ui;
+    </script>
+</body>
+</html>

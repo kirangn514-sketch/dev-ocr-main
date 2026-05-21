@@ -13,6 +13,9 @@ const upload = multer();
 
 router.get("/getAllBranch", upload.none() , authenticateToken, getAllBranch);
 router.post("/getBranchById", upload.none(), getBrachFromBarnchId)
+//****need to change */
 router.post("/read-cheque", upload.single('file'), authenticateToken, readCheque)
+
+//router.post("/read-cheque", upload.single('file'), readCheque)
 
 module.exports = router;

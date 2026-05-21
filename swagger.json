@@ -1,0 +1,765 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CTS OCR API",
+    "description": "Cheque Truncation System OCR (Optical Character Recognition) - Mobile and Web API Documentation",
+    "version": "1.0.0",
+    "contact": {
+      "name": "CTS Team",
+      "email": "support@cts.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5002",
+      "description": "Development Server"
+    },
+    {
+      "url": "http://182.76.112.78:91",
+      "description": "Production Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT Authorization header using the Bearer scheme"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "user123"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          }
+        }
+      },
+      "OTPRequest": {
+        "type": "object",
+        "required": ["employeeid"],
+        "properties": {
+          "employeeid": {
+            "type": "string",
+            "example": "EMP001"
+          }
+        }
+      },
+      "OTPResponse": {
+        "type": "object",
+        "properties": {
+          "otp": {
+            "type": "string"
+          },
+          "empid": {
+            "type": "string"
+          }
+        }
+      },
+      "ChequeData": {
+        "type": "object",
+        "properties": {
+          "batchId": {
+            "type": "integer"
+          },
+          "branchnationId": {
+            "type": "integer"
+          },
+          "cheque_chequeNo": {
+            "type": "string",
+            "maxLength": 9
+          },
+          "cheque_rbiAccNo": {
+            "type": "string",
+            "maxLength": 8
+          },
+          "cheque_trCode": {
+            "type": "string",
+            "maxLength": 5
+          },
+          "cheque_amt": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "cheque_micr": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-05-21"
+          },
+          "scannerId": {
+            "type": "string"
+          },
+          "endNo": {
+            "type": "string"
+          },
+          "frontTiff": {
+            "type": "string"
+          },
+          "backTiff": {
+            "type": "string"
+          },
+          "frontJpeg": {
+            "type": "string"
+          }
+        }
+      },
+      "BatchCreationRequest": {
+        "type": "object",
+        "properties": {
+          "batchId": {
+            "type": "integer"
+          },
+          "branchId": {
+            "type": "integer"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ReportRequest": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "branchId": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/otp": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Get OTP for Employee",
+        "description": "Fetches OTP details for a given employee ID from Oracle database",
+        "operationId": "getOTP",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OTPRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OTPResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/loginUser": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Login",
+        "description": "Authenticate user with username and password",
+        "operationId": "loginUser",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/logoutUser": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Logout",
+        "description": "Logout authenticated user",
+        "operationId": "logoutUser",
+        "responses": {
+          "200": {
+            "description": "Logout successful"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/encrypt": {
+      "post": {
+        "tags": ["Security"],
+        "summary": "Encrypt Password",
+        "description": "Encrypt a password string",
+        "operationId": "encryptPass",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password encrypted successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/decrypt": {
+      "post": {
+        "tags": ["Security"],
+        "summary": "Decrypt Password",
+        "description": "Decrypt an encrypted password string",
+        "operationId": "decryptPass",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "encryptedPassword": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password decrypted successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getClearingCodes": {
+      "get": {
+        "tags": ["Batch Management"],
+        "summary": "Get Clearing Codes",
+        "description": "Retrieve all available clearing codes for batch operations",
+        "operationId": "getClearingCodes",
+        "responses": {
+          "200": {
+            "description": "Clearing codes retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/createBatch": {
+      "post": {
+        "tags": ["Batch Management"],
+        "summary": "Create Batch",
+        "description": "Create batch using Oracle database (DEPRECATED - use create_newBatch)",
+        "operationId": "batchCreation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchCreationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch created successfully"
+          },
+          "400": {
+            "description": "Invalid batch data"
+          }
+        },
+        "x-status": "DEPRECATED"
+      }
+    },
+    "/cts/create_newBatch": {
+      "post": {
+        "tags": ["Batch Management"],
+        "summary": "Create Batch (MSSQL)",
+        "description": "Create batch using Microsoft SQL Server - NEW VERSION",
+        "operationId": "batchCreationwithmssql",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchCreationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch created successfully in MSSQL"
+          },
+          "400": {
+            "description": "Invalid batch data"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getAllScanDetailsWithBatchid": {
+      "post": {
+        "tags": ["Batch Management"],
+        "summary": "Get Scan Details by Batch ID",
+        "description": "Retrieve all scan details for a specific batch",
+        "operationId": "getAllScanDetailsWithBatchid",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "batchId": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scan details retrieved successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getAllBranch": {
+      "get": {
+        "tags": ["Branch Management"],
+        "summary": "Get All Branches",
+        "description": "Retrieve list of all branches (requires authentication)",
+        "operationId": "getAllBranch",
+        "responses": {
+          "200": {
+            "description": "Branches retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getBranchById": {
+      "post": {
+        "tags": ["Branch Management"],
+        "summary": "Get Branch by ID",
+        "description": "Retrieve branch information by branch ID (no authentication required)",
+        "operationId": "getBrachFromBarnchId",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "branchId": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Branch details retrieved successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/read-cheque": {
+      "post": {
+        "tags": ["Cheque Processing"],
+        "summary": "Read Cheque Image",
+        "description": "Upload and read cheque image file",
+        "operationId": "readCheque",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cheque data extracted successfully"
+          },
+          "400": {
+            "description": "Invalid cheque image"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/ocrApi": {
+      "post": {
+        "tags": ["OCR Processing"],
+        "summary": "OCR Front Side Processing",
+        "description": "Process front side of cheque using OCR",
+        "operationId": "ocrApi",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OCR processing successful"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/ocrBack": {
+      "post": {
+        "tags": ["OCR Processing"],
+        "summary": "OCR Back Side Processing",
+        "description": "Process back side of cheque using OCR",
+        "operationId": "ocrbackApi",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OCR processing successful"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getReport": {
+      "post": {
+        "tags": ["Reporting"],
+        "summary": "Get Report",
+        "description": "Generate report for a date range and branch",
+        "operationId": "getReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report generated successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getDetailReport": {
+      "post": {
+        "tags": ["Reporting"],
+        "summary": "Get Detailed Report",
+        "description": "Generate detailed report with more information",
+        "operationId": "getDetailReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Detailed report generated successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getRejectionReport": {
+      "post": {
+        "tags": ["Reporting"],
+        "summary": "Get Rejection Report",
+        "description": "Generate report of rejected cheques",
+        "operationId": "getRejectionReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rejection report generated successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getNPCIStatusReport": {
+      "post": {
+        "tags": ["Reporting"],
+        "summary": "Get NPCI Status Report",
+        "description": "Generate NPCI (National Payments Corporation of India) status report",
+        "operationId": "getNPCIStatusReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "NPCI status report generated successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getRejectionReport_v2": {
+      "post": {
+        "tags": ["Reporting"],
+        "summary": "Get Rejection Report (v2)",
+        "description": "Generate rejection report - Enhanced version",
+        "operationId": "getRejData",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rejection report v2 generated successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/finalupload": {
+      "post": {
+        "tags": ["Upload Management"],
+        "summary": "Final Upload",
+        "description": "Upload finalized batch data",
+        "operationId": "finalUpload",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Final upload completed"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getAllScanDetails": {
+      "get": {
+        "tags": ["Upload Management"],
+        "summary": "Get All Scan Details",
+        "description": "Retrieve all scan details without authentication",
+        "operationId": "getAllScanDetails",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "All scan details retrieved successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getFinalUploadPndingList": {
+      "post": {
+        "tags": ["Upload Management"],
+        "summary": "Get Final Upload Pending List",
+        "description": "Retrieve list of pending uploads",
+        "operationId": "finalUploadQueList",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Pending uploads list retrieved"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/uploadImage": {
+      "post": {
+        "tags": ["Image Processing"],
+        "summary": "Upload Images",
+        "description": "Upload up to 2 cheque images",
+        "operationId": "uploadImages",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "maxItems": 2
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Images uploaded successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    }
+  }
+}

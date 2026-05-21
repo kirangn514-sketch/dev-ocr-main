@@ -168,8 +168,11 @@ const getfolderPath = async () => {
 
         let sqlQuery = `select * from MPath where PATHGROUP = 'MOBILE'`
         let result = await pool.request().query(sqlQuery);
-        console.log(result.recordset[0])
-        return result.recordset[0].LOCATION
+        console.log(result?.recordset[0])
+        // Handle different casing for the LOCATION column and trim whitespace
+        const row = result?.recordset[0] || {};
+        const loc = row?.LOCATION ?? row.Location ?? row.location;
+        return loc?.toString().trim();
     } catch (error) {
         console.log(error)
     } finally {
@@ -191,7 +194,9 @@ const getServerfolderPath = async () => {
         let sqlQuery = `select * from MPath where PATHGROUP = 'MOBILE_Img'`
         let result = await pool.request().query(sqlQuery);
         console.log(result.recordset[0])
-        return result.recordset[0].LOCATION
+        const row = result.recordset[0] || {};
+        const loc = row.LOCATION ?? row.Location ?? row.location;
+        return loc?.toString().trim();
     } catch (error) {
         console.log(error)
     } finally {

@@ -130,12 +130,17 @@ exports.getBrachFromBarnchId = async (req, res) => {
             .query(`SELECT 
                      mb.BranchID,
                      RTRIM(mb.BranchName) AS BranchName,
-                     STRING_AGG(mc.ScannerModelName, ',') AS ScannerModelNames
+                     STRING_AGG(mc.ScannerModelName, ',') AS ScannerModelNames,
+                      mb.IFSCCode ,
+					 mb.MICR ,
+					 mb.BankID
                     FROM MPresentingBank mb
                     LEFT JOIN MScanner mc 
                     ON mc.BranchName = mb.BranchID
                     WHERE mb.BranchID =  @branchId
-                    GROUP BY mb.BranchID, mb.BranchName`)
+                    GROUP BY mb.BranchID, mb.BranchName,  mb.IFSCCode ,
+					 mb.MICR ,
+					 mb.BankID`)
         // .query(`Select BRanchID, BranchName From MPresentingBank where BRanchID = @branchId`);
 
         // Placeholder for scanner mapping; returns empty list if none.
@@ -146,6 +151,9 @@ exports.getBrachFromBarnchId = async (req, res) => {
         const branchDetails = branchResult.recordset?.map(b => ({
             BranchID: b.BRanchID,
             BranchName: (b.BranchName || "").trim(),
+            IFSCCode : b.IFSCCode,
+            MICR : b.MICR,
+            BankID:b.BankID,
             scannerIds : b.ScannerModelNames.split(',')
         })) || [];
 

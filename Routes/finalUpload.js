@@ -15,7 +15,7 @@ const upload = multer();
 
 
 //router.get("/getAllBranch", upload.none() ,getAllBranch);
-router.post("/finalUpload", authenticateToken, finalUpload)
+router.post("/finalUpload2", authenticateToken, finalUpload)
 router.get("/getAllScanDetails", getAllScanDetails )
 router.post("/getFinalUploadPndingList", finalUploadQueList)
 

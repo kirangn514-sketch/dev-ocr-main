@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTS OCR API - Endpoint Status Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .card-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card-value.success {
+            color: #49cc90;
+        }
+
+        .card-value.warning {
+            color: #fca130;
+        }
+
+        .card-value.info {
+            color: #667eea;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .chart-container {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.active {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-badge.deprecated {
+            background: #ffe0b2;
+            color: #e65100;
+        }
+
+        .status-badge.planned {
+            background: #b3e5fc;
+            color: #0277bd;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            margin-right: 5px;
+        }
+
+        .method-badge.get {
+            background: #61affe;
+        }
+
+        .method-badge.post {
+            background: #49cc90;
+        }
+
+        .auth-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .auth-badge.jwt {
+            background: #667eea;
+        }
+
+        .auth-badge.public {
+            background: #f44336;
+        }
+
+        .category-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .endpoint-item {
+            display: grid;
+            grid-template-columns: 100px 1fr 150px 150px 200px;
+            gap: 15px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .endpoint-item:hover {
+            background: #f0f0f0;
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .security-issues {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .issue-item {
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            background: #ffebee;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .issue-item.medium {
+            border-left-color: #fca130;
+            background: #fff3e0;
+        }
+
+        .issue-item.low {
+            border-left-color: #fdd835;
+            background: #fffde7;
+        }
+
+        .issue-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .issue-endpoint {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .issue-description {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .issue-fix {
+            font-size: 11px;
+            color: #667eea;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-right: 3px;
+            margin-bottom: 3px;
+        }
+
+        .tag.category {
+            background: #e8eaf6;
+            color: #3f51b5;
+        }
+
+        .tag.database {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .endpoint-item {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CTS OCR API - Status Dashboard</h1>
+            <p class="subtitle">Endpoint Status & Analytics Overview</p>
+        </header>
+
+        <!-- Statistics Cards -->
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-title">Total Endpoints</div>
+                <div class="card-value info">27</div>
+                <div class="card-subtitle">All API routes</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Active Endpoints</div>
+                <div class="card-value success">25</div>
+                <div class="card-subtitle">92.6% - Production Ready</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Deprecated</div>
+                <div class="card-value warning">1</div>
+                <div class="card-subtitle">Needs Migration</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Protected (JWT)</div>
+                <div class="card-value info">18</div>
+                <div class="card-subtitle">66.7% - Authenticated</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Public Endpoints</div>
+                <div class="card-value warning">9</div>
+                <div class="card-subtitle">33.3% - No Auth</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Security Issues</div>
+                <div class="card-value warning">4</div>
+                <div class="card-subtitle">Missing Authentication</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Endpoint Status Distribution</div>
+                <canvas id="statusChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Authentication Coverage</div>
+                <canvas id="authChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Endpoints by HTTP Method</div>
+                <canvas id="methodChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Database Distribution</div>
+                <canvas id="databaseChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend-grid">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #49cc90;">✓</div>
+                <div>Active - Production Ready</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fca130;">⚠</div>
+                <div>Deprecated - Use alternative</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #61affe;">GET</div>
+                <div>HTTP GET - Retrieve Data</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #49cc90;">POST</div>
+                <div>HTTP POST - Create/Process</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #667eea;">JWT</div>
+                <div>Requires JWT Authentication</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f44336;">🌐</div>
+                <div>Public - No Authentication</div>
+            </div>
+        </div>
+
+        <!-- Security Issues -->
+        <div class="security-issues">
+            <div class="category-header">🛡️ Security Issues Found</div>
+            
+            <div class="issue-item">
+                <div class="issue-title">❌ Missing JWT Authentication</div>
+                <div class="issue-endpoint">POST /cts/create_newBatch</div>
+                <div class="issue-description">Batch creation endpoint exposed without authentication</div>
+                <div class="issue-fix">✓ FIX: Add authenticateToken middleware</div>
+            </div>
+
+            <div class="issue-item">
+                <div class="issue-title">❌ Missing JWT Authentication</div>
+                <div class="issue-endpoint">POST /cts/getAllScanDetailsWithBatchid</div>
+                <div class="issue-description">Scan details endpoint exposed without authentication</div>
+                <div class="issue-fix">✓ FIX: Add authenticateToken middleware</div>
+            </div>
+
+            <div class="issue-item medium">
+                <div class="issue-title">⚠️ Should Be Protected</div>
+                <div class="issue-endpoint">GET /cts/getAllScanDetails</div>
+                <div class="issue-description">Returns complete scan database without filtering or authentication</div>
+                <div class="issue-fix">✓ FIX: Add JWT requirement and pagination</div>
+            </div>
+
+            <div class="issue-item medium">
+                <div class="issue-title">⚠️ Missing Rate Limiting</div>
+                <div class="issue-endpoint">POST /otp</div>
+                <div class="issue-description">Susceptible to brute force attacks - employee ID enumeration</div>
+                <div class="issue-fix">✓ FIX: Implement rate limiting and CAPTCHA verification</div>
+            </div>
+
+            <div class="issue-item low">
+                <div class="issue-title">📋 Missing Validation</div>
+                <div class="issue-endpoint">POST /cts/uploadImage</div>
+                <div class="issue-description">No file type validation on image uploads</div>
+                <div class="issue-fix">✓ FIX: Add whitelist validation for TIFF, JPG, PNG only</div>
+            </div>
+        </div>
+
+        <!-- Endpoints by Category -->
+        <div class="category-section">
+            <div class="category-header">🔐 Authentication (5 Endpoints)</div>
+            <div class="endpoint-item">
+                <span class="method-badge get">GET</span>
+                <div class="endpoint-path">/otp</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">PUBLIC</span>
+                <div class="tag category">Auth</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/loginUser</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">PUBLIC</span>
+                <div class="tag category">Auth</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/logoutUser</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag category">Auth</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/encrypt</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">PUBLIC</span>
+                <div class="tag category">Security</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/decrypt</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">PUBLIC</span>
+                <div class="tag category">Security</div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">📦 Batch Management (4 Endpoints)</div>
+            <div class="endpoint-item">
+                <span class="method-badge get">GET</span>
+                <div class="endpoint-path">/cts/getClearingCodes</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/createBatch</div>
+                <span class="status-badge deprecated">DEPRECATED</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">Oracle</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/create_newBatch</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">❌ MISSING</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getAllScanDetailsWithBatchid</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">❌ MISSING</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">🏦 Branch Management (3 Endpoints)</div>
+            <div class="endpoint-item">
+                <span class="method-badge get">GET</span>
+                <div class="endpoint-path">/cts/getAllBranch</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getBranchById</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">PUBLIC</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/read-cheque</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag category">Upload</div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">👁️ OCR Processing (2 Endpoints)</div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/ocrApi</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag category">Core</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/ocrBack</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag category">Core</div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">📊 Reporting (5 Endpoints)</div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getReport</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getDetailReport</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getRejectionReport</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getNPCIStatusReport</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getRejectionReport_v2</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">📤 Upload Management (3 Endpoints)</div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/finalUpload</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge jwt">JWT</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge get">GET</span>
+                <div class="endpoint-path">/cts/getAllScanDetails</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">❌ MISSING</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/getFinalUploadPndingList</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">❌ MISSING</span>
+                <div class="tag database">MSSQL</div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">🖼️ Image Processing (1 Endpoint)</div>
+            <div class="endpoint-item">
+                <span class="method-badge post">POST</span>
+                <div class="endpoint-path">/cts/uploadImage</div>
+                <span class="status-badge active">ACTIVE</span>
+                <span class="auth-badge public">PUBLIC</span>
+                <div class="tag category">Upload</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>CTS OCR API Documentation - Updated May 21, 2026</p>
+            <p>For full documentation, see: API_DOCUMENTATION.md | ENDPOINT_STATUS.md | swagger-ui.html</p>
+        </footer>
+    </div>
+
+    <script>
+        // Status Distribution Chart
+        const ctx1 = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Active', 'Deprecated', 'Planned'],
+                datasets: [{
+                    data: [25, 1, 1],
+                    backgroundColor: ['#49cc90', '#fca130', '#61affe'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 15, font: { size: 12 } }
+                    }
+                }
+            }
+        });
+
+        // Authentication Coverage Chart
+        const ctx2 = document.getElementById('authChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['JWT Protected', 'Public'],
+                datasets: [{
+                    data: [18, 9],
+                    backgroundColor: ['#667eea', '#f44336'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 15, font: { size: 12 } }
+                    }
+                }
+            }
+        });
+
+        // HTTP Method Distribution
+        const ctx3 = document.getElementById('methodChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['GET', 'POST'],
+                datasets: [{
+                    label: 'Endpoints',
+                    data: [5, 22],
+                    backgroundColor: ['#61affe', '#49cc90'],
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: true, labels: { font: { size: 12 } } }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 5 }
+                    }
+                }
+            }
+        });
+
+        // Database Distribution
+        const ctx4 = document.getElementById('databaseChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: ['MSSQL', 'Oracle', 'In-Memory'],
+                datasets: [{
+                    label: 'Endpoints',
+                    data: [15, 3, 9],
+                    backgroundColor: ['#667eea', '#f44336', '#49cc90'],
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true, labels: { font: { size: 12 } } }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 3 }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

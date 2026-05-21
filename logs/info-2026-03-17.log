@@ -1,6 +1,0 @@
-2026-03-17 16:37:31 [ERROR]: Error while fetching rejection data:  The conversion of a varchar data type to a datetime data type resulted in an out-of-range value.
-2026-03-17 16:41:04 [ERROR]: Error while fetching rejection data:  The conversion of a varchar data type to a datetime data type resulted in an out-of-range value.
-2026-03-17 16:42:32 [ERROR]: Error while fetching rejection data:  Validation failed for parameter 'presentaionDate'. Invalid date.
-2026-03-17 16:52:38 [INFO]: Rejection Record Fetch Successfully
-2026-03-17 16:58:24 [INFO]: User kirang logged in successfuly
-2026-03-17 17:45:26 [ERROR]: Invalid object name 'outwardbatch'.

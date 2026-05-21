@@ -106,9 +106,15 @@ const executeWebService = async (soapRequest) => {
 
 exports.finalUpload = async (req, res) => {
     try {
-        const { date, scannerId, batchNo, chequeCount } = req.body;
+        const { date, scannerId, batchNo, batchId, chequeCount } = req.body;
 
-        // batchId
+        // Validate required fields
+        if (!date || !scannerId || !batchNo || !batchId) {
+            return res.status(400).json({ 
+                res_code: 0, 
+                error: "Missing required fields: date, scannerId, batchNo, batchId" 
+            });
+        }
 
         const modifiedDate = date.split("-").join("")
 
@@ -121,8 +127,13 @@ exports.finalUpload = async (req, res) => {
         const pathFromDb = await getfolderPath()
         console.log("DatabAse Path -----:>", pathFromDb)
 
-        const destinationPath = path.join(pathFromDb.trim(), modifiedDate, scannerId); // Final destination path
-        const unzippath = path.join(pathFromDb.trim(), modifiedDate, scannerId, batchNo);
+        if (!pathFromDb) {
+            logger.error('No folder path returned from database for PATHGROUP=MOBILE');
+            return res.status(500).json({ res_code: 0, error: "No destination path configured in database (MPath)" });
+        }
+
+        const destinationPath = path.join(pathFromDb?.trim(), modifiedDate, scannerId); // Final destination path
+        const unzippath = path.join(pathFromDb?.trim(), modifiedDate, scannerId, batchNo);
         // Check if the folder exists
         if (!fs.existsSync(zipFolderPath)) {
             return res.status(400).json({
@@ -146,13 +157,8 @@ exports.finalUpload = async (req, res) => {
         // Move the file 
         fs.renameSync(zipFilePath, finalZipPath);
 
-        //console.log("Priint param", param)
-        const queryData = { ...param }
-        //  console.log("Priint param        --:", param[0]?.ID)
-
-        // date, scannerId, batchId, batchNo
-        const batchId = param[0]?.ID
-        // date, scannerId, batchNo, batchId
+        // Upload batch to web service
+        console.log("Uploading batch to web service with: date, scannerId, batchNo, batchId");
         const resultUploadToWeb = await axios.post(`http://${serverIp}:5003/cts/uploadOutwardBatchToWeb`, { date, scannerId, batchNo, batchId })
         const batchData = resultUploadToWeb
 

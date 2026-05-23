@@ -1,5 +1,6 @@
 const sql = require('mssql');
 const { dbConfig, serverIp } = require("../db/dbConnection")
+const webDbConfig = require("../db/webDbConnection");
 const axios = require("axios");
 const logger = require("../logging/logger")
 
@@ -263,11 +264,64 @@ exports.getRejectionReport = async (req, res) => {
         })
         console.log(error)
     }
-
-
-
 }
 
+
+exports.getRetRejectionReport = async (req, res) => {
+    const { presentingMICR, scannerID, presentaionDate } = req.body
+
+    console.log(req.body)
+    try {
+        let pool = await sql.connect(webDbConfig);
+        const result = await pool.request()
+            .input('presentingMICR', sql.VarChar(20), presentingMICR)
+            .input('scannerID', sql.VarChar(20), scannerID)
+            .input('presentaionDate', sql.VarChar(20), presentaionDate)
+            .execute("SP_GetRejectionStatus_mob");
+        await pool.close();
+
+        const data = result.recordset || [];
+        const allKeys = [...new Set(data.flatMap(obj => Object.keys(obj)))];
+        console.log(allKeys.length);
+
+        if (allKeys.length > 1) {
+            if (data.length !== 0 && !data[0]['']) {
+                logger.info("Rejection Record Fetch Successfully")
+                return res.status(200).json({
+                    mesage: "Record Fetch Successfully",
+                    rejData: data,
+                });
+            }
+        }
+
+        if (allKeys.length === 0 && data.length === 0) {
+            return res.status(200).json({
+                mesage: "No Record Found",
+                rejData: data,
+            });
+        }
+
+        if (allKeys.length === 1 && data[0] && (data[0][''] === 6 || data[0][''] === 3)) {
+            return res.status(200).json({
+                mesage: "Branch MICR or Scanner ID Doesnot map",
+                rejData: [],
+            });
+        }
+
+        return res.status(200).json({
+            mesage: "Record Fetch Successfully",
+            rejData: data,
+        });
+    } catch (error) {
+        console.log("db error : ", error)
+        logger.error("Error while fetching rejection data: ", error)
+        return res.status(500).json({
+            res_code: 0,
+            status: "error",
+            error: `Database error ${error}`
+        })
+    }
+}
 
 
 exports.getRejData = async (req, res) => {

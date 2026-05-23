@@ -408,7 +408,7 @@ router.post('/uploadChequeImage', preValidationMiddleware, async (req, res) => {
             console.log("Server path : ", serverPathFromDb)
             const modified_date = date.split("-").join("")
            // const serverImagePath = '\\View\\Outward\\Images\\'+modified_date+"\\"+scannerId+"\\"+batchNo+"\\"
-           const serverImagePath = serverPathFromDb.trim()+modified_date+"\\"+scannerId+"\\"+batchNo+"\\"
+           const serverImagePath = serverPathFromDb?.trim()+modified_date+"\\"+scannerId+"\\"+batchNo+"\\"
             const imagePath = serverImagePath
             const slipno = 0
             const batchuId = Number(batchId)

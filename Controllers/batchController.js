@@ -212,7 +212,7 @@ exports.batchCreationwithmssql = async (req, res) => {
         });
     }
 
-    const { BranchNationID, ClearingID, ChequeCount, TotalAmount, UserID, PresentingDate, BankID, IFSCCode, presentingMICR, scannerID, gridId } = value;
+    const { BranchNationID, ClearingID, ChequeCount, TotalAmount, UserID, PresentingDate, BankID, IFSCCode, presentingMICR, scannerID, is_DepositeSlip, is_SubBankMember, gridId } = value;
     const Batchno = 0;
     const FileName = "M"
     const DepositorAC = null
@@ -237,7 +237,9 @@ exports.batchCreationwithmssql = async (req, res) => {
         IFSCCode,
         presentingMICR,
         scannerID,
-        BatchType
+        BatchType,
+        is_DepositeSlip,
+        is_SubBankMember
     };
 
     const checkCutOff_2 = checkCutoff(PresentingDate, cutOff)

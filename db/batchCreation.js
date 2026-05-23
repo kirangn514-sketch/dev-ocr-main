@@ -95,6 +95,8 @@ async function executeProcedure(params) {
             .input('presentingMICR', sql.VarChar(9), params.presentingMICR)
             .input('scannerID', sql.VarChar(20), params.scannerID)
             .input('BatchType', sql.VarChar(1), params.BatchType)
+            .input('is_DepositeSlip', sql.Bit, params.is_DepositeSlip)
+            .input('is_SubBankMember', sql.Bit, params.is_SubBankMember)
             .execute('dbo.SP_INSERT_BATCHDETAILS_MOB');
 
         // Return the result
@@ -125,6 +127,8 @@ const batchSchema = Joi.object({
     IFSCCode: Joi.string().length(11).required(),
     presentingMICR: Joi.string().length(9).required(),
     scannerID: Joi.string().max(20).required(),
+    is_DepositeSlip: Joi.boolean().default(false),
+    is_SubBankMember: Joi.boolean().default(false),
     gridId : Joi.string().required()
 
 

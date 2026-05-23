@@ -118,16 +118,133 @@
       },
       "BatchCreationRequest": {
         "type": "object",
+        "required": [
+          "BranchNationID",
+          "ClearingID",
+          "ChequeCount",
+          "TotalAmount",
+          "UserID",
+          "PresentingDate",
+          "BankID",
+          "IFSCCode",
+          "presentingMICR",
+          "scannerID",
+          "gridId"
+        ],
         "properties": {
-          "batchId": {
-            "type": "integer"
+          "BranchNationID": {
+            "type": "integer",
+            "example": 13
           },
-          "branchId": {
-            "type": "integer"
+          "ClearingID": {
+            "type": "string",
+            "example": "01"
           },
+          "ChequeCount": {
+            "type": "integer",
+            "example": 4
+          },
+          "TotalAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 110.50
+          },
+          "UserID": {
+            "type": "string",
+            "example": "demo"
+          },
+          "PresentingDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-05-23"
+          },
+          "BankID": {
+            "type": "integer",
+            "example": 3
+          },
+          "IFSCCode": {
+            "type": "string",
+            "example": "RATN0000050"
+          },
+          "presentingMICR": {
+            "type": "string",
+            "example": "411176003"
+          },
+          "scannerID": {
+            "type": "string",
+            "example": "70002"
+          },
+          "is_DepositeSlip": {
+            "type": "boolean",
+            "example": false
+          },
+          "is_SubBankMember": {
+            "type": "boolean",
+            "example": false
+          },
+          "gridId": {
+            "type": "string",
+            "example": "01"
+          }
+        }
+      },
+      "ReportDateScannerRequest": {
+        "type": "object",
+        "required": ["date"],
+        "properties": {
           "date": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "example": "2026-05-23"
+          },
+          "scannerId": {
+            "type": "string",
+            "example": "70002"
+          }
+        }
+      },
+      "ReportDateRequest": {
+        "type": "object",
+        "required": ["date"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-05-23"
+          }
+        }
+      },
+      "RejectionStatusRequest": {
+        "type": "object",
+        "required": ["presentingMICR", "scannerID", "presentaionDate"],
+        "properties": {
+          "presentingMICR": {
+            "type": "string",
+            "example": "411176003"
+          },
+          "scannerID": {
+            "type": "string",
+            "example": "70002"
+          },
+          "presentaionDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-05-23"
+          }
+        }
+      },
+      "NPCIStatusRequest": {
+        "type": "object",
+        "required": ["date"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-05-23"
+          },
+          "scannerId": {
+            "type": "string",
+            "example": "70002"
           }
         }
       },
@@ -556,14 +673,14 @@
       "post": {
         "tags": ["Reporting"],
         "summary": "Get Report",
-        "description": "Generate report for a date range and branch",
+        "description": "Generate report for a date and scanner",
         "operationId": "getReport",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReportRequest"
+                "$ref": "#/components/schemas/ReportDateScannerRequest"
               }
             }
           }
@@ -580,14 +697,14 @@
       "post": {
         "tags": ["Reporting"],
         "summary": "Get Detailed Report",
-        "description": "Generate detailed report with more information",
+        "description": "Generate detailed report for a specific date",
         "operationId": "getDetailReport",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReportRequest"
+                "$ref": "#/components/schemas/ReportDateRequest"
               }
             }
           }
@@ -611,7 +728,31 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReportRequest"
+                "$ref": "#/components/schemas/RejectionStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rejection report generated successfully"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
+    "/cts/getRetRejectionReport": {
+      "post": {
+        "tags": ["Reporting"],
+        "summary": "Get Rejection Report (retention DB)",
+        "description": "Retrieve rejection report directly from the current database instead of the external API",
+        "operationId": "getRetRejectionReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectionStatusRequest"
               }
             }
           }
@@ -635,7 +776,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReportRequest"
+                "$ref": "#/components/schemas/NPCIStatusRequest"
               }
             }
           }
@@ -659,7 +800,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReportRequest"
+                "$ref": "#/components/schemas/RejectionStatusRequest"
               }
             }
           }

@@ -38,6 +38,7 @@ exports.zipAndCopyBatch = async (req, res) => {
         const destZipPath = path.join(destFolder, zipFileName);
         await fs.copy(zipFilePath, destZipPath);
         return res.status(200).json({
+            res_code : 1,
             message: 'Batch zipped and copied successfully',
             zipPath: destZipPath
         });

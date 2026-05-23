@@ -5,7 +5,6 @@ const webDbConfig = require("./db/webDbConnection")
 const {dbConfig} = require("./db/dbConnection")
 const{authenticateToken} = require("./cipher/jwtToken")
 
-var cors = require('cors')
 let app = express()
 const ExcelJS = require('exceljs');
 //let connection = require("./dbConnection")
@@ -16,7 +15,7 @@ let port = 5002;
 //app.use(express.json());
 app.use(express.json({limit: '250mb'}))
 app.use(bodyParser.json());
-app.use(cors())
+// CORS middleware removed; server will bind to all interfaces below
 //const bodyParser = require('body-parser');
 //app.use(bodyParser.json({ limit: '500mb' }));
 app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
@@ -138,7 +137,7 @@ app.get('/', (req, res) => {
     `);
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Node Server started on port ${port}`)
     console.log(`📚 API Documentation available at: http://localhost:${port}/docs/swagger-ui.html`)
     console.log(`📊 Dashboard available at: http://localhost:${port}/docs/api-dashboard.html`)

@@ -6,6 +6,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const archiver = require('archiver');
 const sharp = require('sharp');
+const sql = require('mssql');
+const { dbConfig } = require("../db/dbConnection");
 const { executeProcedure, uploadImageSchema, getfolderPath, chequeRescanValidation_folder , getServerfolderPath} = require("../db/uploadImagesp");
 const { error } = require("console");
 const { exec } = require('child_process');
@@ -16,22 +18,15 @@ const{authenticateToken} = require("../cipher/jwtToken")
 // app.use(express.urlencoded({ extended: true }));
 
 
-const folderCounts = {};
-
-const remainingCount = (lenght, max) => {
-    let count = 0
-    // Check if the array has space for new values
-    if (lenght + 2 <= max) {
-
-        const remainingSpace = count++; // Calculate remaining space
-
-        return remainingSpace;
-    } if (lenght === max) {
-        //console.log("Array is full. Count has been reset.");
-        count = 0; // Reset the count when the array is full
+// Helper function to safely count files in a directory
+const countFilesInBatch = async (uploadPath) => {
+    try {
+        const files = await fs.readdir(uploadPath).catch(() => []);
+        return files.length;
+    } catch (error) {
+        return 0;
     }
-
-}
+};
 
 
 
@@ -144,6 +139,17 @@ const storage = multer.diskStorage({
 
         console.log("initial multer storage --:", req.body,)
         try {
+            // Validate required fields
+            if (!date || !scannerId || !batchNo) {
+                return cb(new Error('date, scannerId, and batchNo are required'));
+            }
+
+            if (!chequCount || isNaN(parseInt(chequCount))) {
+                console.error(`Invalid chequCount: ${chequCount}. Please ensure chequCount is sent in request body.`);
+                return cb(new Error('Invalid chequCount. chequCount must be a valid number and is required.'));
+            }
+
+            const validChequCount = parseInt(chequCount);
 
             const isScannedResult = await chequeRescanValidation_folder(cheque_chequeNo, cheque_micr, cheque_rbiAccNo, cheque_trCode).catch(error => {
                 console.error('Cheque validation failed:', isScannedResult);
@@ -172,30 +178,19 @@ const storage = multer.diskStorage({
                 return cb(new Error(`Error ensuring directory : ${err}`));
             });
 
-            // Check if the folder already has 10 images
-            const files = await fs.readdir(uploadPath).catch((err) => {
-                console.log("Error in reading directory : ", err);
-                return cb(new Error(`Error in reading directory : ${err}`))
-            });
-
-            if (files.length >= (chequCount * 6)) {
+            // Check if the folder already has reached maximum file limit
+            // Each cheque generates 6+ files (2 original images + 2 TIFFs + 2 temp processed images + others)
+            const fileCount = await countFilesInBatch(uploadPath);
+            const maxFilesExpected = validChequCount * 6;
+            
+            console.log(`Current files: ${fileCount}, Max expected: ${maxFilesExpected}, ChequCount: ${validChequCount}`);
+            
+            if (fileCount >= maxFilesExpected) {
+                console.log(`Batch full: ${fileCount} files >= ${maxFilesExpected} max`);
                 return cb(new Error('Batch full')); // Skip file upload
             }
 
-            const folderKey = `${date}_${scannerId}_${batchNo}`;
-
-            if (!folderCounts[folderKey]) {
-                folderCounts[folderKey] = 0; // Start count at 0
-            }
-
-
-            if (folderCounts[folderKey] >= chequCount) {
-                //req.fileLimitExceeded = true;
-                // return cb(null, "");
-                // req.uploadError = 'Folder has reached its limit of 10 images. Cannot upload more images.';
-                return cb(new Error('Batch full')); // Skip file upload
-            }
-            name = formatfileName(date, batchNo, folderCounts[folderKey] + 1)
+            name = formatfileName(date, batchNo, Math.ceil(fileCount / 6) + 1)
 
             cb(null, uploadPath);
 
@@ -274,6 +269,119 @@ const upload = multer({
     // Two binary files
 ]);
 
+const depositSlipStorage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        try {
+            const { date, scannerId, batchNo } = req.body;
+            if (!date || !scannerId || !batchNo) {
+                return cb(new Error('date, scannerId, and batchNo are required'));
+            }
+            const uploadPath = path.join(__dirname, '..', 'CTS_uploads', date, scannerId, batchNo);
+            await fs.ensureDir(uploadPath);
+            cb(null, uploadPath);
+        } catch (error) {
+            cb(error);
+        }
+    },
+    filename: (req, file, cb) => {
+        const timestamp = Date.now();
+        const ext = path.extname(file.originalname) || '';
+        const safeName = `deposit_slip_${timestamp}${ext}`;
+        cb(null, safeName);
+    }
+});
+
+const depositSlipUpload = multer({
+    storage: depositSlipStorage,
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf', 'image/tiff', 'image/x-tiff', 'image/bmp'];
+        if (!allowedTypes.includes(file.mimetype)) {
+            return cb(new Error('Unsupported deposit slip file type'));
+        }
+        cb(null, true);
+    }
+}).single('depositSlip');
+
+const cleanupSingleFile = async (file) => {
+    if (!file || !file.path) return;
+    try {
+        await fs.unlink(file.path);
+        console.log(`Deleted file: ${file.path}`);
+    } catch (error) {
+        logger.error(error);
+        console.error('Error deleting file:', error);
+    }
+};
+
+router.post('/uploadDepositSlip', async (req, res) => {
+    depositSlipUpload(req, res, async (err) => {
+        if (err) {
+            logger.error(err);
+            console.error('Deposit slip upload error:', err);
+            return res.status(400).json({
+                res_code: 0,
+                message: err.message || 'Error uploading deposit slip.'
+            });
+        }
+
+        const { date, scannerId, batchNo, batchId } = req.body;
+        if (!date || !scannerId || !batchNo || !batchId) {
+            await cleanupSingleFile(req.file);
+            return res.status(400).json({
+                res_code: 0,
+                message: 'date, scannerId, batchNo, and batchId are required.'
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                res_code: 0,
+                message: 'Deposit slip file is required.'
+            });
+        }
+
+        try {
+            const pool = await sql.connect(dbConfig);
+            const result = await pool.request()
+                .input('batchId', sql.BigInt, parseInt(batchId, 10))
+                .query('SELECT is_DepositeSlip FROM OutwardBatch WHERE BatchID = @batchId');
+            await pool.close();
+
+            const batch = result.recordset && result.recordset[0];
+            if (!batch) {
+                await cleanupSingleFile(req.file);
+                return res.status(404).json({
+                    res_code: 0,
+                    message: 'Batch not found.'
+                });
+            }
+
+            const isDepositSlipEnabled = batch.is_DepositeSlip === true || batch.is_DepositeSlip === 1;
+            if (!isDepositSlipEnabled) {
+                await cleanupSingleFile(req.file);
+                return res.status(200).json({
+                    res_code: 0,
+                    message: 'This deposit slip is not checked for this batch.'
+                });
+            }
+
+            return res.status(200).json({
+                res_code: 1,
+                message: 'Deposit slip uploaded successfully.',
+                fileName: req.file.filename,
+                uploadPath: req.file.path
+            });
+        } catch (error) {
+            logger.error(error);
+            await cleanupSingleFile(req.file);
+            return res.status(500).json({
+                res_code: 0,
+                message: `Database error ${error}`
+            });
+        }
+    });
+});
+
 module.exports = { upload }
 
 // Function to zip a folder
@@ -308,25 +416,9 @@ const zipFolder = (folderPath, zipPath) => {
 
 const preValidationMiddleware = async (req, res, next) => {
     try {
-        const { cheque_chequeNo, cheque_micr, cheque_rbiAccNo, cheque_trCode } = req.body;
-
-        console.log("preValidationMiddleware  :", req.body)
-
-        const isScannedResult = await chequeRescanValidation_folder(
-            cheque_chequeNo,
-            cheque_micr,
-            cheque_rbiAccNo,
-            cheque_trCode
-        );
-
-        if (isScannedResult && isScannedResult.success === false) {
-            return res.status(200).json({
-                res_code: 0,
-                message: "Cheque already scanned",
-            });
-        }
-
-        next(); // Continue to the upload handler
+        // Note: Validation of form fields will happen INSIDE the upload handler
+        // after multer has processed the request, since we're using multipart/form-data
+        next();
     } catch (error) {
         logger.error(error)
         console.error('Pre-validation error:', error);
@@ -367,6 +459,35 @@ router.post('/uploadChequeImage', preValidationMiddleware, async (req, res) => {
         }
 
         try {
+            // Validate form fields AFTER multer has processed the request
+            const { date, scannerId, batchNo, chequCount, cheque_chequeNo, cheque_micr, cheque_rbiAccNo, cheque_trCode } = req.body;
+
+            if (!date || !scannerId || !batchNo) {
+                await cleanupUploadedFiles(req.files?.images || []);
+                return res.status(400).json({
+                    res_code: 0,
+                    message: "date, scannerId, and batchNo are required"
+                });
+            }
+
+            if (!chequCount || isNaN(parseInt(chequCount))) {
+                console.error(`Invalid chequCount from form-data: ${chequCount}`);
+                await cleanupUploadedFiles(req.files?.images || []);
+                return res.status(400).json({
+                    res_code: 0,
+                    message: "chequCount is required and must be a valid number"
+                });
+            }
+
+            if (!cheque_chequeNo || !cheque_micr || !cheque_rbiAccNo || !cheque_trCode) {
+                await cleanupUploadedFiles(req.files?.images || []);
+                return res.status(400).json({
+                    res_code: 0,
+                    message: "cheque_chequeNo, cheque_micr, cheque_rbiAccNo, and cheque_trCode are required"
+                });
+            }
+
+            console.log("Validation passed. Processing upload...");
 
             const { images } = req.files;
             const files = req.files;
@@ -374,8 +495,16 @@ router.post('/uploadChequeImage', preValidationMiddleware, async (req, res) => {
 
             console.log("/uploadChequeImage end point  --:", req.body,)
 
-            const { date, scannerId, userId, branchnationId, branchMicr, batchId, batchNo, chequCount, chequeSrNo, cheque_accNo, cheque_micr, cheque_chequeNo, cheque_trCode, cheque_rbiAccNo, cheque_amt, endNo } = req.body;
+            const { userId, branchnationId, branchMicr, batchId, chequeSrNo, cheque_accNo, cheque_amt, endNo } = req.body;
 
+            // Validate additional required parameters
+            if (!batchId) {
+                await cleanupUploadedFiles(req.files?.images || []);
+                return res.status(400).json({
+                    res_code: 0,
+                    message: "batchId is required"
+                });
+            }
 
             console.log("Main api  :--  ", "date:", date, "scannerId:", scannerId, "userId:", userId, "branchnationId:", branchnationId, "branchMicr:", branchMicr, "batchId:", batchId, "batchNo:", batchNo, "chequCount", chequCount, "chequeSrNo:", chequeSrNo, "cheque_accNo:", cheque_accNo, "cheque_micr:", cheque_micr, "cheque_chequeNo:", cheque_chequeNo, "cheque_trCode:", cheque_trCode, "cheque_rbiAccNo:", cheque_rbiAccNo, "cheque_amt", cheque_amt, "endNo", endNo)
 
@@ -438,8 +567,11 @@ router.post('/uploadChequeImage', preValidationMiddleware, async (req, res) => {
                     });
                 }
 
-                // Increment the folder count after files have been processed
-                folderCounts[folderKey] += 1;
+                // Count actual files in batch for response
+                const actualFileCount = await countFilesInBatch(uploadPath);
+                const chequeNumber = Math.ceil(actualFileCount / 6);
+                const validChequCount = parseInt(chequCount);
+                
                 // const files = req.files;
                 // const { date, scannerId, batchNo } = req.body;
                 // const uploadPath = path.join(__dirname, '..', 'CTS_uploads', req.body.date, req.body.scannerId, req.body.batchNo);
@@ -465,7 +597,7 @@ router.post('/uploadChequeImage', preValidationMiddleware, async (req, res) => {
                 }
 
                 const uploadedFiles = await fs.readdir(uploadPath);
-                if (uploadedFiles.length >= chequCount * 6) {
+                if (uploadedFiles.length >= validChequCount * 6) {
                     return res.status(200).json({
                         res_code: 4,
                         message: 'Folder is full. Cannot upload more files.',
@@ -475,8 +607,8 @@ router.post('/uploadChequeImage', preValidationMiddleware, async (req, res) => {
                 return res.status(200).json({
                     res_code: 1,
                     message: "Image and Data successfully uploaded",
-                    res_forChequeNo: folderCounts[folderKey],
-                    RemainingChequeCount: chequCount - folderCounts[folderKey],
+                    res_forChequeNo: chequeNumber,
+                    RemainingChequeCount: validChequCount - chequeNumber,
                     data: result
                 });
 
@@ -495,7 +627,6 @@ router.post('/uploadChequeImage', preValidationMiddleware, async (req, res) => {
         }
     });
 });
-
 
 const convertZipToBase64 = (filePath) => {
     try {

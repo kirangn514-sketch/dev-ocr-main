@@ -813,6 +813,41 @@
         "x-status": "ACTIVE"
       }
     },
+    "/cts/uploadDepositSlip": {
+      "post": {
+        "tags": ["Upload Management"],
+        "summary": "Upload Deposit Slip",
+        "description": "Upload deposit slip if the batch is configured for deposit slip uploads",
+        "operationId": "uploadDepositSlip",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": { "type": "string", "format": "date", "example": "2026-05-23" },
+                  "scannerId": { "type": "string", "example": "70002" },
+                  "batchNo": { "type": "string", "example": "1" },
+                  "batchId": { "type": "string", "example": "123" },
+                  "depositSlip": { "type": "string", "format": "binary" }
+                },
+                "required": ["date", "scannerId", "batchNo", "batchId", "depositSlip"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deposit slip upload response"
+          },
+          "400": {
+            "description": "Invalid upload request or batch not configured for deposit slip"
+          }
+        },
+        "x-status": "ACTIVE"
+      }
+    },
     "/cts/finalupload": {
       "post": {
         "tags": ["Upload Management"],

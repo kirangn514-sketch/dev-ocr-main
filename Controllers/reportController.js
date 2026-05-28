@@ -174,8 +174,8 @@ exports.getDetailRepot = async (req, res) => {
             row.map(async (item) => ({
                 BatchNo: item?.BatchNo,
                 ChequeNumber: item?.ChequeNumber,
-                BranchCode: item?.BranchCode,
-                ChequeAccountNumber: item?.ChequeAccountNumber,
+                Micr: item?.BranchCode,
+                San: item?.ChequeAccountNumber,
                 Transaction_Code: item?.Transaction_Code,
                 Amount: item?.Amount,
                 Status: item?.Status,

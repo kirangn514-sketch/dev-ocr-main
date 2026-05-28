@@ -6,11 +6,6 @@
     "auditLog": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\.905cbd94d7e4b16b4dc223069d64a58b2f890452-audit.json",
     "files": [
         {
-            "date": 1778764355562,
-            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-14.log",
-            "hash": "e3aba0ee5cf1a3108dfcb7009ed4cae9c343c4ec2c2e744319e25a42a76c3079"
-        },
-        {
             "date": 1778825932475,
             "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-15.log",
             "hash": "6e9c9b58d7b027d84be737a4bba35e23d632836d6aa313bdb6f63985d8ae2b84"
@@ -29,6 +24,31 @@
             "date": 1779476700914,
             "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-23.log",
             "hash": "102e41a94b7127d1b9909d293fc7c9223efea6348e549ffa5775a840d877dbf4"
+        },
+        {
+            "date": 1779687145542,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-25.log",
+            "hash": "ac9af08d210801436e4ae5dd1abde1f23cd61322f88f239994aef38dd1e5456f"
+        },
+        {
+            "date": 1779771894270,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-26.log",
+            "hash": "a6c0fbd7739381864600cb284735ccd50dda7d92a6dee38f321764c6589ff79a"
+        },
+        {
+            "date": 1779866227207,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-27.log",
+            "hash": "780eb5658cbdbc2e6f3e2d7ca81800cbbfa2d3f7eaaba0b63da02d47ce4a1a72"
+        },
+        {
+            "date": 1779945777474,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-28.log",
+            "hash": "31460ce7d6f0320caf80974099077b5609646b2fc15ff83dab397b6cb786fec2"
+        },
+        {
+            "date": 1779993041123,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-29.log",
+            "hash": "0e08cfb446a77b94225c3a3a6c06ac5ffefc4f6e3183fc930de8ca333bf26bfc"
         }
     ],
     "hashType": "sha256"

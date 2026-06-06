@@ -71,8 +71,7 @@ const processMainImage = async (filePath, filename) => {
 
 
         //-sharpen 1x1  -gamma 0.5 -brightness-contrast 8x2 
-       // const command = `magick "${filePath}" -colorspace Gray -resize 2320x1092  -sharpen 0x1.5 -gamma 0.9 -density 300 -units PixelsPerInch -quality 70 "${outputFilePath}"`
-        const command = `magick "${filePath}" -colorspace Gray -resize 2320x1092  -density 300 -units PixelsPerInch -quality 70 "${outputFilePath}"`
+        const command = `magick "${filePath}" -colorspace Gray -resize 2320x1092  -sharpen 0x1.5 -gamma 0.9 -density 300 -units PixelsPerInch -quality 70 "${outputFilePath}"`
 
         // Execute the command
         await new Promise((resolve, reject) => {
@@ -193,8 +192,6 @@ const storage = multer.diskStorage({
 
             name = formatfileName(date, batchNo, Math.ceil(fileCount / 6) + 1)
 
-              // name = formatfileName(date, batchNo, folderCounts[folderKey] + 1)
-
             cb(null, uploadPath);
 
 
@@ -223,7 +220,7 @@ const storage = multer.diskStorage({
                 //  return cb(new Error('Error generating file name.', error))
             } else {
 
-                
+                console.log("file.originalname", file.originalname)
                 //const outputFileName =  file.originalname.replace(path.extname(filename), '.jpg');
                 const timestamp = Date.now();
                 const nm = file.originalname.split('.')[0] + ".jpg"

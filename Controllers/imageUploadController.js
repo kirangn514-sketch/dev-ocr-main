@@ -33,28 +33,28 @@ const remainingCount = (lenght, max) => {
 
 
 
-async function calculateThreshold(imagePath) {
-    try {
-        // Read image data as raw pixel data
-        const { data, info } = await sharp(imagePath)
-            .ensureAlpha() // Ensure there is an alpha channel
-            .raw()
-            .toBuffer({ resolveWithObject: true });
+// async function calculateThreshold(imagePath) {
+//     try {
+//         // Read image data as raw pixel data
+//         const { data, info } = await sharp(imagePath)
+//             .ensureAlpha() // Ensure there is an alpha channel
+//             .raw()
+//             .toBuffer({ resolveWithObject: true });
 
-        // Calculate average pixel intensity (grayscale)
-        let total = 0;
-        for (let i = 0; i < data.length; i += info.channels) {
-            total += data[i]; // Only use the first channel (assumes grayscale or RGB)
-        }
+//         // Calculate average pixel intensity (grayscale)
+//         let total = 0;
+//         for (let i = 0; i < data.length; i += info.channels) {
+//             total += data[i]; // Only use the first channel (assumes grayscale or RGB)
+//         }
 
-        const averageIntensity = total / (data.length / info.channels);
-        console.log(`Calculated Threshold (average intensity): ${averageIntensity}`);
-        return Math.round(averageIntensity);
-    } catch (error) {
-        console.error("Error calculating threshold:", error);
-        throw error;
-    }
-}
+//         const averageIntensity = total / (data.length / info.channels);
+//         console.log(`Calculated Threshold (average intensity): ${averageIntensity}`);
+//         return Math.round(averageIntensity);
+//     } catch (error) {
+//         console.error("Error calculating threshold:", error);
+//         throw error;
+//     }
+// }
 
 async function calculateThreshold(imagePath) {
     try {
@@ -204,9 +204,13 @@ async function convertToTiffWithMagic(uploadPath, filename) {
         // const command = `magick "${uploadPath}"   -threshold 39% -compress Fax -depth 1 -density 200 "${outputFilePath}"`
         //-background white -flatten  -compress Group4   -depth 8 -compress LZW 
 
-          const command = `magick "${uploadPath}" -threshold 60% -compress Group4 -density 200 "${outputFilePath}"`
+         // const command = `magick "${uploadPath}" -threshold 60% -compress Group4 -density 200 "${outputFilePath}"`
  
+         //  const command = `magick "${uploadPath}" -colorspace sRGB -colorspace Gray -strip -type Grayscale -threshold 60% -compress Group4 -density 200 "${outputFilePath}"`
+ 
+         //const command = `magick "${uploadPath}" -flatten -colorspace Gray -type Grayscale -strip -threshold 60% -compress Group4 -density 200 "${outputFilePath}"`
 
+         const command = `magick "${uploadPath}" -profile "*" -colorspace Gray -type Grayscale -strip -threshold 60% -compress Group4 -density 200 "${outputFilePath}"`;
         // Execute the ImageMagick command
         await new Promise((resolve, reject) => {
             exec(command, (error, stdout, stderr) => {
@@ -308,8 +312,16 @@ const processMainImage = async (filePath, filename) => {
        // const command = `magick "${filePath}" -resize 2320x1092 -sharpen 0x1.5 -gamma 0.7  -brightness-contrast 8x3 -contrast-stretch 2%x2%  -colorspace Gray -density 300 -units PixelsPerInch -quality 90 "${outputFilePath}"`
         //-strip -fuzz 20% -trim +repage 
         //-sharpen 1x1  -gamma 0.5 -brightness-contrast 8x2 
-        const command = `magick "${filePath}"  -resize 2320x1092  -gamma 0.7 -density 300 -units PixelsPerInch -quality 90 "${outputFilePath}"`
-        
+       
+        //-- const command = `magick "${filePath}" -separate -average -resize 2320x1092  -gamma 0.7 -density 300 -units PixelsPerInch -quality 90 "${outputFilePath}"`
+       
+       // const command = `magick "${filePath}" -colorspace sRGB -colorspace Gray -strip -type Grayscale -resize 2320x1092 -gamma 0.7 -density 300 -units PixelsPerInch -quality 90 "${outputFilePath}"`
+     
+       // const command = `magick "${filePath}" -flatten -colorspace Gray -type Grayscale -strip -resize 2320x1092 -gamma 0.7 -density 300 -units PixelsPerInch -quality 90 "${outputFilePath}"`
+
+        const command = `magick "${filePath}" -profile "*" -colorspace Gray -type Grayscale -strip -resize 2320x1092 -gamma 0.7 -density 300 -units PixelsPerInch -quality 90 "${outputFilePath}"`;
+
+        console.log("ImageMagick Command: ", command)
         // Execute the command
         await new Promise((resolve, reject) => {
             exec(command, (error, stdout, stderr) => {
@@ -545,14 +557,15 @@ router.post("/uploadChequeImage", (req, res, next) => {
                 // Convert uploaded images to TIFF format
                 for (const file of files) {
                     console.log(`Original file saved at -----------: ${file.filename}`);
-                    await processMainImage(file.path, file.filename);
+                  const jpegPath =  await processMainImage(file.path, file.filename);
                     console.log(`Original file saved at: ${file.filename}`);
                     // const tiffPath = await convertToTiff(uploadPath, file.filename);
 
                     //  const tiffPath = await convertToTiffWithMagic(uploadPath, file.filename);
 
-                    const tiffPath = await convertToTiffWithMagic(file.path, file.filename);
+                  //  const tiffPath = await convertToTiffWithMagic(file.path, file.filename);
 
+                         const tiffPath = await convertToTiffWithMagic(jpegPath, file.filename);
 
                     console.log(`Converted TIFF saved at: ${tiffPath}`);
                     const processedPath = path.join(uploadPath, `Temp${file.filename}`);

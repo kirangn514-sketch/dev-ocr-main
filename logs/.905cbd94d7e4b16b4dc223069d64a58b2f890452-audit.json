@@ -6,21 +6,6 @@
     "auditLog": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\.905cbd94d7e4b16b4dc223069d64a58b2f890452-audit.json",
     "files": [
         {
-            "date": 1778825932475,
-            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-15.log",
-            "hash": "6e9c9b58d7b027d84be737a4bba35e23d632836d6aa313bdb6f63985d8ae2b84"
-        },
-        {
-            "date": 1779335832120,
-            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-21.log",
-            "hash": "e38abf645dbfd6898829d832bb2c06a29a4ce7c8b0b2385f756cdb6767c43fe5"
-        },
-        {
-            "date": 1779388694538,
-            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-22.log",
-            "hash": "433bdf7574eeeade1ef4c91b2a7fbd3816d8ff0cc1935c8432f2ecc41b5414e3"
-        },
-        {
             "date": 1779476700914,
             "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-23.log",
             "hash": "102e41a94b7127d1b9909d293fc7c9223efea6348e549ffa5775a840d877dbf4"
@@ -49,6 +34,26 @@
             "date": 1779993041123,
             "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-29.log",
             "hash": "0e08cfb446a77b94225c3a3a6c06ac5ffefc4f6e3183fc930de8ca333bf26bfc"
+        },
+        {
+            "date": 1780134426756,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-05-30.log",
+            "hash": "911e0e0483166aef09e06b7281c8062860625e5abee8e7e2ebbfd28dd0ab7d8e"
+        },
+        {
+            "date": 1780382526636,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-06-02.log",
+            "hash": "735d01a7fc0c582cca18eebd2657502f04bc79fbcb81c4a73cf46b54a1e4c971"
+        },
+        {
+            "date": 1780482630624,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-06-03.log",
+            "hash": "992b56f399aa8fa99c1a769cee327c9f0ba60d301ee4cc90293be84b2f86c714"
+        },
+        {
+            "date": 1780650966042,
+            "name": "E:\\kiran\\CTS_OCR\\Backup\\12032026_bkp\\orc\\logs\\error-2026-06-05.log",
+            "hash": "05ef801403ba96b3466d83702953831c55c03d712c03d6bc78f6ca45d69679c5"
         }
     ],
     "hashType": "sha256"

@@ -159,7 +159,11 @@ exports.getDetailRepot = async (req, res) => {
         }
 
         const pool = await sql.connect(dbConfig);
-        const qury = `Select BatchhID as BatchNo, ChequeNumber, BranchCode, ChequeAccountNumber, Transaction_Code, Amount,Status, ENDNO,PresentationDate  from OutwardBatchScandetails Where PresentationDate = @date`;
+        const qury = `Select BatchhID as BatchId,  ChequeNumber, MSB.BatchStatusDesc AS Status, BranchCode, ChequeAccountNumber, Transaction_Code, Amount, 
+                      ENDNO,OBC.PresentationDate  from OutwardBatchScandetails  OBC
+                      left join MBatchStatusMaster as MSB  on MSB.BatchStatusCode = OBC.Status 
+                      Where PresentationDate = @date 
+                      ORDER BY BatchhID desc`;
         const result = await pool.request()
             .input('date', sql.VarChar, date)
             .query(qury);
@@ -180,6 +184,7 @@ exports.getDetailRepot = async (req, res) => {
                 Amount: item?.Amount,
                 Status: item?.Status,
                 EndEnu: item?.ENDNO,
+                EndEnu: splitDate(item?.PresentationDate).replace(/-/g, '') + "99" ,
                 PresentationDate: splitDate(item?.PresentationDate)
             }))
         );
